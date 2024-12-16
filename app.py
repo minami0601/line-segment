@@ -9,13 +9,13 @@ from funnel_analysis import create_segment_data, create_funnel_chart, segment_ma
 st.set_page_config(page_title="LINEファネル分析", layout="wide")
 st.title("セグメント比率分析")
 
-# データ読み込み
+
 @st.cache_data
 def load_data():
     try:
         # Google Sheets APIの認証情報
         scope = ['https://spreadsheets.google.com/feeds',
-                'https://www.googleapis.com/auth/drive']
+                 'https://www.googleapis.com/auth/drive']
 
         # 認証情報の取得（サービスアカウントのJSONファイルが必要）
         if 'GOOGLE_SHEETS_CREDS' not in st.secrets:
@@ -42,7 +42,8 @@ def load_data():
 
         # 数値列を数値型に変換
         numeric_columns = df.columns.difference(['日付'])
-        df[numeric_columns] = df[numeric_columns].apply(pd.to_numeric, errors='coerce')
+        df[numeric_columns] = df[numeric_columns].apply(
+            pd.to_numeric, errors='coerce')
 
         return df
 
@@ -50,27 +51,31 @@ def load_data():
         st.error(f'データの読み込み中にエラーが発生しました: {str(e)}')
         return pd.DataFrame()
 
+
+# データを読み込む
 df = load_data()
 
 if df.empty:
     st.warning("データを読み込めませんでした。")
 else:
-    # サイドバー - フィルター
-    st.sidebar.header("フィルター設定")
+    # ディルター設定（2列レイアウト）
+    col1, col2 = st.columns(2)
 
-    # 日付選択
-    target_date = st.sidebar.date_input(
-        "日付を選択",
-        value=df['日付'].max().date(),
-        min_value=df['日付'].min().date(),
-        max_value=df['日付'].max().date()
-    )
+    with col1:
+        # 日付選択
+        target_date = st.date_input(
+            "日付を選択",
+            value=df['日付'].max().date(),
+            min_value=df['日付'].min().date(),
+            max_value=df['日付'].max().date()
+        )
 
-    # セグメント選択
-    segment_type = st.sidebar.selectbox(
-        "セグメント種別を選択",
-        ["職業別", "経験年数別", "収入帯別"]
-    )
+    with col2:
+        # セグメント選択
+        segment_type = st.selectbox(
+            "セグメント種別を選択",
+            ["全体", "ユーザー属性", "職業別", "経験年数別", "収入帯別"]
+        )
 
     # データ作成とグラフ表示
     segment_data = create_segment_data(df, segment_type, target_date)
@@ -80,4 +85,3 @@ else:
         st.plotly_chart(fig, use_container_width=True)
     else:
         st.warning(f"{target_date}のデータは存在しません。")
-
