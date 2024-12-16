@@ -6,8 +6,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 from funnel_analysis import (
     create_segment_funnel_data,
     create_individual_funnel_chart,
-    segment_mappings,
-    funnel_stages,
+    segment_mappings
 )
 
 # ページ設定
